@@ -1,0 +1,30 @@
+{
+  "name": "vetra-walmart-backend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+      "build": "next build",
+      "start": "next start"
+  },
+  "dependencies": {
+      "@supabase/supabase-js": "^2.99.3",
+      "cors": "^2.8.5",
+      "csv-stringify": "^6.7.0",
+      "json2csv": "^6.0.0-alpha.2",
+      "next": "^14.1.0",
+      "react": "^18.2.0",
+      "react-dom": "^18.2.0",
+      "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.2.0",
+      "ts-node": "^10.9.2",
+      "typescript": "^5.3.3",
+      "@types/node": "^20.11.0",
+      "@types/react": "^18.2.0"
+  }
+}
