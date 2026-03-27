@@ -80,10 +80,17 @@ export async function POST(req: NextRequest) {
     };
 
     // ─── ITINERARY DATA (optional, scenario-only) ─────────────────────────────
-    let itinerary = undefined;
-    let itineraryCount = undefined;
-    let itineraryByScenario = undefined;
-    let assignmentSummary = undefined;
+    let itinerary: any[] | undefined = undefined;
+    let itineraryCount: number | undefined = undefined;
+    let itineraryByScenario: Record<string, { total: number; items: any[] }> | undefined = undefined;
+    let assignmentSummary:
+      | {
+          scenariosAssigned: number;
+          totalUpdated: number;
+          perScenario: Record<string, { updated: number; sampled: number }>;
+          assignmentLimitPerScenario: number;
+        }
+      | undefined = undefined;
     if (includeItinerary && scenarioId) {
       try {
         const col = COLUMNS.loads;
@@ -125,7 +132,7 @@ export async function POST(req: NextRequest) {
           .order(col.loadId, { ascending: true })
           .limit(itineraryLimit);
         if (error) throw error;
-        itinerary = data || [];
+        itinerary = (data as any[]) || [];
         itineraryCount = count || itinerary.length;
       } catch (itErr) {
         console.warn("[simulate] itinerary fetch failed (non-fatal):", itErr);
@@ -177,8 +184,8 @@ export async function POST(req: NextRequest) {
             return [
               id,
               {
-                total: count || (data || []).length,
-                items: data || [],
+                total: count || ((data as any[]) || []).length,
+                items: (data as any[]) || [],
               },
             ];
           })
@@ -214,7 +221,9 @@ export async function POST(req: NextRequest) {
         );
 
         const driversByEquipment = new Map<string, { driverId: string; truckId: string }[]>();
-        for (const d of driverRows || []) {
+        const typedDrivers = (driverRows as Array<{ driverId?: string; assignedTruckId?: string }>) || [];
+        for (const d of typedDrivers) {
+          if (!d.driverId || !d.assignedTruckId) continue;
           const equip = truckEquipment.get(d.assignedTruckId);
           if (!equip) continue;
           if (!driversByEquipment.has(equip)) driversByEquipment.set(equip, []);
@@ -240,8 +249,10 @@ export async function POST(req: NextRequest) {
             .limit(assignmentLimitPerScenario);
           if (loadError) throw loadError;
 
-          const updates = [];
-          for (const l of loadRows || []) {
+          const typedLoads = (loadRows as Array<{ loadId?: string; equipmentRequired?: string }>) || [];
+          const updates: Record<string, string>[] = [];
+          for (const l of typedLoads) {
+            if (!l.loadId || !l.equipmentRequired) continue;
             const pool = driversByEquipment.get(l.equipmentRequired) || [];
             if (!pool.length) continue;
             const idx = roundRobinIndex.get(l.equipmentRequired) || 0;

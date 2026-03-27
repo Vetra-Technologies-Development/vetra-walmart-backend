@@ -69,7 +69,12 @@ export async function GET(req: NextRequest) {
       );
     if (summaryError) throw summaryError;
 
-    const summaryRows = allDrivers || [];
+    const summaryRows = (allDrivers as Array<{
+      startTimePolicy?: string;
+      scheduleType?: string;
+      hosCycle?: string;
+      homeDc?: string;
+    }>) || [];
     const summary = {
       total:        summaryRows.length,
       rolling:      summaryRows.filter(d => d.startTimePolicy === "Rolling").length,

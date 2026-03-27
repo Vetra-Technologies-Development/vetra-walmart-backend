@@ -63,15 +63,19 @@ export async function GET(req: NextRequest) {
       );
     if (summaryError) throw summaryError;
 
-    const summaryRows = allTrucks || [];
+    const summaryRows = (allTrucks as Array<{
+      equipmentType?: string;
+      statusMonday?: string;
+      homeDc?: string;
+    }>) || [];
     const summary = {
       total:         summaryRows.length,
       available:     summaryRows.filter(t => t.statusMonday === "Available").length,
       inMaintenance: summaryRows.filter(t => t.statusMonday === "In Maintenance").length,
       reserved:      summaryRows.filter(t => t.statusMonday === "Reserved").length,
-      dryVan:        summaryRows.filter(t => t.equipmentType.includes("Dry Van")).length,
-      reefer:        summaryRows.filter(t => t.equipmentType.includes("Reefer")).length,
-      flatbed:       summaryRows.filter(t => t.equipmentType.includes("Flatbed")).length,
+      dryVan:        summaryRows.filter(t => (t.equipmentType || "").includes("Dry Van")).length,
+      reefer:        summaryRows.filter(t => (t.equipmentType || "").includes("Reefer")).length,
+      flatbed:       summaryRows.filter(t => (t.equipmentType || "").includes("Flatbed")).length,
     };
 
     return NextResponse.json({
